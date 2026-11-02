@@ -8,10 +8,9 @@
     android:background="@color/background_dark">
 
     <!-- Main Content Area -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:background="@color/background_dark">
 
         <!-- Top App Bar -->
@@ -19,6 +18,7 @@
             android:id="@+id/topBar"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_alignParentTop="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="8dp"
@@ -50,7 +50,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvModelBadge"
+                android:id="@+id/tvGoogleAccountBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -59,7 +59,7 @@
                 android:paddingEnd="8dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
-                android:text="2.0 Flash"
+                android:text="Google Sync"
                 android:textColor="@color/color_accent"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -77,38 +77,132 @@
                 android:src="@drawable/ic_add"
                 android:contentDescription="New chat" />
 
-            <ImageButton
-                android:id="@+id/btnSettings"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_settings"
-                android:contentDescription="Settings" />
+        </LinearLayout>
+
+        <!-- Top Progress Indicator -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_below="@+id/topBar"
+            android:max="100"
+            android:progressTint="@color/progress_bar"
+            android:visibility="gone"
+            android:elevation="6dp" />
+
+        <!-- Chat & Content Area (Synchronized with Google Account) -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/topBar"
+            android:layout_above="@+id/nativeBottomContainer">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <WebView
+                    android:id="@+id/webView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none"
+                    android:overScrollMode="never" />
+
+            </FrameLayout>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <!-- Google Sign-In Welcome Overlay (Shown when not authenticated) -->
+        <LinearLayout
+            android:id="@+id/layoutGoogleSignInPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/topBar"
+            android:background="#131314"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="28dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:src="@drawable/ic_sparkle"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Welcome to Google Gemini"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sign in with your Google Account to access your personal chat history, sync conversations across all devices, and upload photos &amp; files."
+                android:textColor="#9AA0A6"
+                android:textSize="14sp"
+                android:lineSpacingExtra="3dp"
+                android:gravity="center"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Official "Sign in with Google" Button -->
+            <LinearLayout
+                android:id="@+id/btnSignInWithGoogle"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_google_signin_button"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="24dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_google_logo" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:text="Sign in with Google"
+                    android:textColor="#3C4043"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No API Key needed. Directly authenticated with Google."
+                android:textColor="#5F6368"
+                android:textSize="12sp"
+                android:layout_marginTop="20dp" />
 
         </LinearLayout>
 
-        <!-- Chat Messages List (Instant 60fps Native RecyclerView) -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvChat"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingTop="8dp"
-            android:paddingBottom="12dp"
-            android:scrollbars="vertical" />
-
-        <!-- Bottom Controls Container -->
+        <!-- Native Bottom Controls Container -->
         <LinearLayout
             android:id="@+id/nativeBottomContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
             android:orientation="vertical"
             android:background="#131314"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:paddingTop="4dp"
-            android:paddingBottom="10dp">
+            android:paddingBottom="10dp"
+            android:elevation="8dp">
 
             <!-- Attachment Preview Bar -->
             <LinearLayout
@@ -153,7 +247,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/color_accent"
                         android:textSize="11sp"
-                        android:text="Attached to prompt" />
+                        android:text="Ready for Gemini" />
                 </LinearLayout>
 
                 <ImageButton
@@ -224,9 +318,9 @@
 
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
-    <!-- Side Navigation Drawer (Chat History & Management) -->
+    <!-- Side Navigation Drawer (Google Account & History Management) -->
     <LinearLayout
         android:id="@+id/drawerPane"
         android:layout_width="300dp"
@@ -234,32 +328,50 @@
         android:layout_gravity="start"
         android:background="#1E1F20"
         android:orientation="vertical"
-        android:paddingTop="24dp"
+        android:paddingTop="28dp"
         android:paddingBottom="16dp">
 
-        <!-- Drawer Header -->
+        <!-- Google Profile Header Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_attachment_chip"
+            android:padding="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp">
 
-            <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:src="@drawable/ic_sparkle" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_google_logo" />
+
+                <TextView
+                    android:id="@+id/tvDrawerAccountStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Google Connected"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
+                android:id="@+id/tvDrawerAccountSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="Google Gemini"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="6dp"
+                android:text="Synchronized with your Gemini Web Account"
+                android:textColor="#9AA0A6"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- New Chat Button inside Drawer -->
@@ -275,28 +387,15 @@
             app:backgroundTint="@color/primary"
             app:cornerRadius="24dp" />
 
-        <TextView
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:text="Recent Chats"
-            android:textColor="#9AA0A6"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:layout_height="1dp"
+            android:background="#303134"
+            android:layout_marginBottom="12dp" />
 
-        <!-- Conversations List -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvConversations"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:scrollbars="vertical" />
-
-        <!-- Drawer Footer (Settings) -->
+        <!-- History Actions -->
         <LinearLayout
-            android:id="@+id/drawerSettingsItem"
+            android:id="@+id/drawerItemSync"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:gravity="center_vertical"
@@ -308,15 +407,48 @@
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:src="@drawable/ic_settings" />
+                android:src="@drawable/ic_sparkle"
+                android:tint="@color/color_accent" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="API Key &amp; Settings"
+                android:layout_marginStart="16dp"
+                android:text="Sync Google History"
                 android:textColor="#E3E3E3"
                 android:textSize="14sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Sign Out Button -->
+        <LinearLayout
+            android:id="@+id/drawerItemSignOut"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_close"
+                android:tint="#EA4335" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Sign Out from Google"
+                android:textColor="#EA4335"
+                android:textSize="14sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
     </LinearLayout>

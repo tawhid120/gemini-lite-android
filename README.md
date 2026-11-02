@@ -1,29 +1,30 @@
-# Google Gemini - Official-Style Standalone Android App (v2.0.0)
+# Google Gemini - Official Standalone Android App (v2.1.0)
 
-A 100% Native, Standalone Android Application for **Google Gemini (Gemini 2.0 Flash / 1.5 Flash)** built specifically to provide the official app experience on entry-level Android devices like **itel A48** (Android Go Edition, 2GB RAM).
-
----
-
-## 🚀 Key Highlights (v2.0.0 Full Standalone)
-
-1. **100% Native UI & Instant 0-Second Launch**:
-   - Zero website loading. All UI elements, layouts, fonts, markdown parsers, and engines are pre-compiled and bundled inside the APK (**51 MB**).
-   - Opens instantaneously with smooth 60fps native RecyclerView chat feed.
-
-2. **Official App Experience**:
-   - **Navigation Drawer**: Displays saved chat sessions, "+ New Chat", and Settings.
-   - **Rich Markdown Response**: Full formatting with Markwon (bold, italics, code blocks with one-tap Copy button, lists, links).
-   - **Camera & Gallery Multimodal Upload**: Snap photos or pick images/documents directly. Analyzed natively by Gemini AI.
-   - **Native Voice Input**: Integrated Android Speech Recognition.
-   - **Permanent Local Storage**: Powered by SQLite (`gemini_native_chats.db`). All previous conversations and images remain saved permanently on your device.
-
-3. **itel A48 (2GB RAM) Performance**:
-   - Direct connection to Google Gemini API with low-RAM payload optimization.
-   - Background bitmap sampling ensures zero memory pressure or OOM crashes.
+A 100% Native, Standalone Android Application for **Google Gemini** featuring **Official Google Sign-In**, complete Google Account & History synchronization, instant native input, multimodal camera/gallery uploads, and offline bundled engines.
 
 ---
 
-## 📦 Download & Installation
+## 🌟 What's New in v2.1.0:
+1. **Official "Sign in with Google" Flow**:
+   - No manual API keys required!
+   - Official "Sign in with Google" button with Google 4-color branding.
+   - Bypasses `disallowed_useragent` restriction for smooth, secure Google authentication.
+2. **Synchronized with your Real Google Account**:
+   - All your Gemini conversations, prompts, and images link directly to your personal Google account.
+   - Past chats from web automatically sync to the app, and new chats created in the app sync back to your Google account.
+3. **51 MB Pre-bundled Standalone Architecture**:
+   - Pre-bundled Material 3 UI, Google Sans typography, offline syntax & prompt engines.
+   - Opens in 0 seconds with native 60fps scrolling on **itel A48 (2GB RAM / Android Go)**.
+4. **Native Multimodal File & Image Upload**:
+   - Native `+` button opens instant Camera / Gallery / Files picker.
+   - Thumbnail preview chip with `✕` remove button.
+   - Uploads directly into your authenticated Google Gemini session.
+5. **Native Voice Input & Navigation Drawer**:
+   - Integrated Speech Recognition (Bangla & English).
+   - Navigation drawer showing Google Account connection status, New Chat button, and Sign Out.
 
-- **Direct APK**: `Gemini-v2.0.0-OfficialNative.apk` (51 MB)
-- Compatible with Android 7.0+ (API 24 to API 34), including all Android Go devices.
+---
+
+## 📦 Direct Installation:
+- Download `Gemini-v2.1.0-GoogleAuth.apk` (51 MB) from GitHub Releases.
+- Tap to install with Files by Google on your itel A48 or any Android device.
