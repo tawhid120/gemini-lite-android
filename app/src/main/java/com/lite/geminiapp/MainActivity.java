@@ -65,8 +65,9 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String GEMINI_APP_URL = "https://gemini.google.com/app";
-    private static final String GOOGLE_SIGNIN_URL = "https://accounts.google.com/signin/v2/identifier?service=bard&continue=https%3A%2F%2Fgemini.google.com%2Fapp";
+    private static final String GEMINI_APP_URL = "https://gemini.google.com/";
+    private static final String GOOGLE_SIGNIN_URL = "https://accounts.google.com/ServiceLogin?passive=1209600&osid=1&continue=https://gemini.google.com/&followup=https://gemini.google.com/&ec=GAZAkgU";
+    private static final String CHROME_USER_AGENT = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36";
 
     private DrawerLayout drawerLayout;
     private WebView webView;
@@ -512,10 +513,8 @@ public class MainActivity extends AppCompatActivity {
         settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
-        // Sanitize User-Agent to Bypass Google OAuth "disallowed_useragent" Check
-        String defaultUa = settings.getUserAgentString();
-        String cleanUa = defaultUa.replace("; wv", "").replaceAll("Version\\/[0-9\\.]+", "");
-        settings.setUserAgentString(cleanUa);
+        // Use standard modern Chrome Mobile User-Agent to Bypass Google OAuth "disallowed_useragent"
+        settings.setUserAgentString(CHROME_USER_AGENT);
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);
@@ -588,6 +587,11 @@ public class MainActivity extends AppCompatActivity {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 isWebPageReady = false;
+                if (url != null && url.contains("accounts.google.com")) {
+                    nativeBottomContainer.setVisibility(View.GONE);
+                } else if (url != null && url.contains("gemini.google.com")) {
+                    nativeBottomContainer.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -598,8 +602,9 @@ public class MainActivity extends AppCompatActivity {
                 CookieManager.getInstance().flush();
 
                 // If URL is gemini.google.com, Google login completed!
-                if (url.contains("gemini.google.com")) {
+                if (url != null && url.contains("gemini.google.com")) {
                     layoutGoogleSignInPrompt.setVisibility(View.GONE);
+                    nativeBottomContainer.setVisibility(View.VISIBLE);
                     tvGoogleAccountBadge.setText("Google Connected");
                     tvDrawerAccountStatus.setText("Google Connected");
                 }
