@@ -1,15 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_dark">
 
+    <!-- Top Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_alignParentTop="true"
+        android:max="100"
+        android:progressTint="@color/progress_bar"
+        android:visibility="gone"
+        android:elevation="6dp" />
+
+    <!-- Web Content Area (Gemini chat stream & conversation history) -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/nativeBottomContainer">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -22,19 +36,141 @@
                 android:scrollbars="none"
                 android:overScrollMode="never" />
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="3dp"
-                android:layout_gravity="top"
-                android:max="100"
-                android:progressTint="@color/progress_bar"
-                android:visibility="gone" />
-
         </FrameLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Native Bottom Container (Instant Access Message & Upload Bar) -->
+    <LinearLayout
+        android:id="@+id/nativeBottomContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="#131314"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="10dp"
+        android:elevation="8dp">
+
+        <!-- Attachment Preview Bar (Shown when a file/image is picked) -->
+        <LinearLayout
+            android:id="@+id/attachmentPreviewBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_attachment_chip"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivAttachmentThumb"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_gallery" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:id="@+id/tvAttachmentName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#E3E3E3"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    tools:text="IMG_20261102.jpg" />
+
+                <TextView
+                    android:id="@+id/tvAttachmentStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/color_accent"
+                    android:textSize="11sp"
+                    android:text="Ready for Gemini" />
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnRemoveAttachment"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:contentDescription="Remove" />
+
+        </LinearLayout>
+
+        <!-- Main Native Input Bar -->
+        <LinearLayout
+            android:id="@+id/inputBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:background="@drawable/bg_native_input_bar"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp">
+
+            <!-- Native + Button (Instant File/Image upload) -->
+            <ImageButton
+                android:id="@+id/btnAddAttachment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_add"
+                android:contentDescription="Add attachment" />
+
+            <!-- Native EditText (Immediate typing on app open) -->
+            <EditText
+                android:id="@+id/etMessage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="Ask Gemini..."
+                android:textColorHint="#9AA0A6"
+                android:textColor="#E3E3E3"
+                android:textSize="15sp"
+                android:maxLines="4"
+                android:inputType="textMultiLine|textCapSentences"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" />
+
+            <!-- Native Voice / Mic Button -->
+            <ImageButton
+                android:id="@+id/btnVoice"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_mic"
+                android:contentDescription="Voice input" />
+
+            <!-- Native Send Button -->
+            <ImageButton
+                android:id="@+id/btnSend"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_send_button"
+                android:src="@drawable/ic_send"
+                android:padding="8dp"
+                android:contentDescription="Send" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- Error Screen (Offline / Load Error) -->
     <LinearLayout
@@ -86,4 +222,4 @@
 
     </LinearLayout>
 
-</FrameLayout>
+</RelativeLayout>
