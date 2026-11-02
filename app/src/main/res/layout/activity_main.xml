@@ -1,225 +1,324 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_dark">
 
-    <!-- Top Loading Indicator -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_alignParentTop="true"
-        android:max="100"
-        android:progressTint="@color/progress_bar"
-        android:visibility="gone"
-        android:elevation="6dp" />
-
-    <!-- Web Content Area (Gemini chat stream & conversation history) -->
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <!-- Main Content Area -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/nativeBottomContainer">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <WebView
-                android:id="@+id/webView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="none"
-                android:overScrollMode="never" />
-
-        </FrameLayout>
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <!-- Native Bottom Container (Instant Access Message & Upload Bar) -->
-    <LinearLayout
-        android:id="@+id/nativeBottomContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:orientation="vertical"
-        android:background="#131314"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="10dp"
-        android:elevation="8dp">
+        android:background="@color/background_dark">
 
-        <!-- Attachment Preview Bar (Shown when a file/image is picked) -->
+        <!-- Top App Bar -->
         <LinearLayout
-            android:id="@+id/attachmentPreviewBar"
+            android:id="@+id/topBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/bg_attachment_chip"
+            android:layout_height="56dp"
             android:gravity="center_vertical"
-            android:padding="8dp"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone">
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:background="#131314"
+            android:elevation="4dp">
+
+            <ImageButton
+                android:id="@+id/btnMenu"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_menu"
+                android:contentDescription="Menu" />
 
             <ImageView
-                android:id="@+id/ivAttachmentThumb"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_gallery" />
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_sparkle"
+                android:layout_marginStart="4dp" />
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="10dp">
+                android:layout_marginStart="8dp"
+                android:text="Gemini"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvAttachmentName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#E3E3E3"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    tools:text="IMG_20261102.jpg" />
+            <TextView
+                android:id="@+id/tvModelBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_attachment_chip"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="2.0 Flash"
+                android:textColor="@color/color_accent"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvAttachmentStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/color_accent"
-                    android:textSize="11sp"
-                    android:text="Ready for Gemini" />
-            </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <ImageButton
-                android:id="@+id/btnRemoveAttachment"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_close"
-                android:contentDescription="Remove" />
-
-        </LinearLayout>
-
-        <!-- Main Native Input Bar -->
-        <LinearLayout
-            android:id="@+id/inputBarLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            android:background="@drawable/bg_native_input_bar"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp">
-
-            <!-- Native + Button (Instant File/Image upload) -->
-            <ImageButton
-                android:id="@+id/btnAddAttachment"
+                android:id="@+id/btnNewChatTop"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_add"
-                android:contentDescription="Add attachment" />
+                android:contentDescription="New chat" />
 
-            <!-- Native EditText (Immediate typing on app open) -->
-            <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@null"
-                android:hint="Ask Gemini..."
-                android:textColorHint="#9AA0A6"
-                android:textColor="#E3E3E3"
-                android:textSize="15sp"
-                android:maxLines="4"
-                android:inputType="textMultiLine|textCapSentences"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp" />
-
-            <!-- Native Voice / Mic Button -->
             <ImageButton
-                android:id="@+id/btnVoice"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
+                android:id="@+id/btnSettings"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_mic"
-                android:contentDescription="Voice input" />
+                android:src="@drawable/ic_settings"
+                android:contentDescription="Settings" />
 
-            <!-- Native Send Button -->
-            <ImageButton
-                android:id="@+id/btnSend"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:background="@drawable/bg_send_button"
-                android:src="@drawable/ic_send"
+        </LinearLayout>
+
+        <!-- Chat Messages List (Instant 60fps Native RecyclerView) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvChat"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp"
+            android:scrollbars="vertical" />
+
+        <!-- Bottom Controls Container -->
+        <LinearLayout
+            android:id="@+id/nativeBottomContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#131314"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="10dp">
+
+            <!-- Attachment Preview Bar -->
+            <LinearLayout
+                android:id="@+id/attachmentPreviewBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_attachment_chip"
+                android:gravity="center_vertical"
                 android:padding="8dp"
-                android:contentDescription="Send" />
+                android:layout_marginBottom="8dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/ivAttachmentThumb"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_gallery" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+
+                    <TextView
+                        android:id="@+id/tvAttachmentName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#E3E3E3"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        tools:text="Photo.jpg" />
+
+                    <TextView
+                        android:id="@+id/tvAttachmentStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/color_accent"
+                        android:textSize="11sp"
+                        android:text="Attached to prompt" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnRemoveAttachment"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_close"
+                    android:contentDescription="Remove" />
+
+            </LinearLayout>
+
+            <!-- Native Chat Input Bar -->
+            <LinearLayout
+                android:id="@+id/inputBarLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="50dp"
+                android:background="@drawable/bg_native_input_bar"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
+
+                <ImageButton
+                    android:id="@+id/btnAddAttachment"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_add"
+                    android:contentDescription="Add attachment" />
+
+                <EditText
+                    android:id="@+id/etMessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Ask Gemini..."
+                    android:textColorHint="#9AA0A6"
+                    android:textColor="#E3E3E3"
+                    android:textSize="15sp"
+                    android:maxLines="4"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp" />
+
+                <ImageButton
+                    android:id="@+id/btnVoice"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_mic"
+                    android:contentDescription="Voice input" />
+
+                <ImageButton
+                    android:id="@+id/btnSend"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_send_button"
+                    android:src="@drawable/ic_send"
+                    android:padding="8dp"
+                    android:contentDescription="Send" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Error Screen (Offline / Load Error) -->
+    <!-- Side Navigation Drawer (Chat History & Management) -->
     <LinearLayout
-        android:id="@+id/errorLayout"
-        android:layout_width="match_parent"
+        android:id="@+id/drawerPane"
+        android:layout_width="300dp"
         android:layout_height="match_parent"
-        android:gravity="center"
+        android:layout_gravity="start"
+        android:background="#1E1F20"
         android:orientation="vertical"
-        android:padding="32dp"
-        android:background="@color/background_dark"
-        android:visibility="gone">
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Drawer Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="✦"
-            android:textColor="@color/color_accent"
-            android:textSize="48sp"
-            android:layout_marginBottom="16dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:layout_marginBottom="16dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/error_title"
-            android:textColor="@color/text_dark"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_sparkle" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/error_msg"
-            android:textColor="#9AA0A6"
-            android:textSize="14sp"
-            android:gravity="center"
-            android:layout_marginBottom="24dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Google Gemini"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
+        <!-- New Chat Button inside Drawer -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnRetry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/retry"
+            android:id="@+id/btnDrawerNewChat"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="+ New chat"
             android:textColor="#FFFFFF"
             app:backgroundTint="@color/primary"
-            app:cornerRadius="20dp"
-            android:paddingStart="28dp"
-            android:paddingEnd="28dp"/>
+            app:cornerRadius="24dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:text="Recent Chats"
+            android:textColor="#9AA0A6"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Conversations List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvConversations"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical" />
+
+        <!-- Drawer Footer (Settings) -->
+        <LinearLayout
+            android:id="@+id/drawerSettingsItem"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_settings" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:text="API Key &amp; Settings"
+                android:textColor="#E3E3E3"
+                android:textSize="14sp" />
+        </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
