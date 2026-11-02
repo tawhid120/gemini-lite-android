@@ -19,7 +19,11 @@ public class ChatMessage {
     }
 
     public static ChatMessage createLoadingMessage(long conversationId) {
-        ChatMessage msg = new ChatMessage(conversationId, "gemini", "Gemini is thinking...", null, System.currentTimeMillis());
+        return createLoadingMessage(conversationId, "✦ Gemini is thinking...");
+    }
+
+    public static ChatMessage createLoadingMessage(long conversationId, String text) {
+        ChatMessage msg = new ChatMessage(conversationId, "gemini", text, null, System.currentTimeMillis());
         msg.isLoading = true;
         return msg;
     }

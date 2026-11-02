@@ -2,17 +2,30 @@ plugins {
     id 'com.android.application'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+def geminiApiKey = localProperties.getProperty('gemini.api.key', '')
+
 android {
     namespace 'com.lite.geminiapp'
     compileSdk 34
+
+    buildFeatures {
+        buildConfig true
+    }
 
     defaultConfig {
         applicationId "com.lite.geminiapp"
         minSdk 24
         targetSdk 34
-        versionCode 5
-        versionName "2.1.1"
+        versionCode 6
+        versionName "2.2.0"
         multiDexEnabled true
+
+        buildConfigField "String", "DEFAULT_API_KEY", "\"${geminiApiKey}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -19,31 +19,102 @@ import okhttp3.Response;
 
 public class GeminiApiService {
 
+    public static final String DEFAULT_API_KEY = BuildConfig.DEFAULT_API_KEY;
     private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/";
-    private static final String MODEL_NAME = "gemini-2.0-flash";
     private static final MediaType JSON_MEDIA = MediaType.get("application/json; charset=utf-8");
+
+    // Sequential Fallback Models ordered by priority (Latest powerful & verified models first)
+    public static final String[] FALLBACK_MODELS = {
+            "gemini-2.5-flash",          // 1. Primary flagship fast model (Active & verified)
+            "gemini-2.5-flash-lite",     // 2. Ultra-fast, low-latency lite model (Active & verified)
+            "gemini-3.5-flash-lite",     // 3. Next-gen lite model (Active & verified)
+            "gemini-flash-lite-latest",  // 4. Latest flash-lite alias (Active & verified)
+            "gemini-3-flash-preview",    // 5. Gemini 3 flash preview (Active & verified)
+            "gemini-3.5-flash",          // 6. Gemini 3.5 flash (Active)
+            "gemini-flash-latest",       // 7. General flash latest
+            "gemini-2.5-pro"             // 8. Pro model fallback
+    };
 
     private final OkHttpClient client;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    public interface GeminiCallback {
-        void onSuccess(String responseText);
+    public interface GeminiFallbackCallback {
+        void onTryingModel(String modelName, int index, int total);
+        void onFallback(String failedModel, String errorReason, String nextModel);
+        void onSuccess(String responseText, String successfulModel);
         void onError(String errorMessage);
+    }
+
+    private interface SingleModelCallback {
+        void onSuccess(String text);
+        void onError(String errorMsg);
     }
 
     public GeminiApiService() {
         this.client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .build();
     }
 
-    public void generateResponse(String apiKey, String promptText, String base64Image, String mimeType, GeminiCallback callback) {
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            callback.onError("API Key is missing. Please enter your Gemini API Key in Settings.");
+    public void generateResponseWithFallback(
+            String apiKey,
+            String promptText,
+            String base64Image,
+            String mimeType,
+            GeminiFallbackCallback callback) {
+
+        final String effectiveKey = (apiKey != null && !apiKey.trim().isEmpty())
+                ? apiKey.trim()
+                : DEFAULT_API_KEY;
+
+        attemptModel(effectiveKey, promptText, base64Image, mimeType, 0, new StringBuilder(), callback);
+    }
+
+    private void attemptModel(
+            String apiKey,
+            String promptText,
+            String base64Image,
+            String mimeType,
+            int modelIndex,
+            StringBuilder failureLog,
+            GeminiFallbackCallback callback) {
+
+        if (modelIndex >= FALLBACK_MODELS.length) {
+            mainHandler.post(() -> callback.onError("All fallback models failed:\n" + failureLog.toString()));
             return;
         }
+
+        String currentModel = FALLBACK_MODELS[modelIndex];
+        mainHandler.post(() -> callback.onTryingModel(currentModel, modelIndex + 1, FALLBACK_MODELS.length));
+
+        executeSingleRequest(apiKey, currentModel, promptText, base64Image, mimeType, new SingleModelCallback() {
+            @Override
+            public void onSuccess(String text) {
+                mainHandler.post(() -> callback.onSuccess(text, currentModel));
+            }
+
+            @Override
+            public void onError(String errorMsg) {
+                failureLog.append("• ").append(currentModel).append(": ").append(errorMsg).append("\n");
+                if (modelIndex + 1 < FALLBACK_MODELS.length) {
+                    String nextModel = FALLBACK_MODELS[modelIndex + 1];
+                    mainHandler.post(() -> callback.onFallback(currentModel, errorMsg, nextModel));
+                }
+                // Sequential fallback to next model
+                attemptModel(apiKey, promptText, base64Image, mimeType, modelIndex + 1, failureLog, callback);
+            }
+        });
+    }
+
+    private void executeSingleRequest(
+            String apiKey,
+            String modelName,
+            String promptText,
+            String base64Image,
+            String mimeType,
+            SingleModelCallback callback) {
 
         try {
             JSONObject root = new JSONObject();
@@ -51,14 +122,14 @@ public class GeminiApiService {
             JSONObject contentObj = new JSONObject();
             JSONArray parts = new JSONArray();
 
-            // 1. Text part
+            // Text Prompt
             if (promptText != null && !promptText.trim().isEmpty()) {
                 JSONObject textPart = new JSONObject();
                 textPart.put("text", promptText);
                 parts.put(textPart);
             }
 
-            // 2. Multimodal Image part (if provided)
+            // Multimodal Image (if provided)
             if (base64Image != null && !base64Image.isEmpty()) {
                 JSONObject imagePart = new JSONObject();
                 JSONObject inlineData = new JSONObject();
@@ -72,7 +143,7 @@ public class GeminiApiService {
             contents.put(contentObj);
             root.put("contents", contents);
 
-            String requestUrl = BASE_URL + MODEL_NAME + ":generateContent?key=" + apiKey.trim();
+            String requestUrl = BASE_URL + modelName + ":generateContent?key=" + apiKey.trim();
 
             RequestBody body = RequestBody.create(root.toString(), JSON_MEDIA);
             Request request = new Request.Builder()
@@ -83,7 +154,7 @@ public class GeminiApiService {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    mainHandler.post(() -> callback.onError("Network error: " + e.getMessage()));
+                    callback.onError("Connection failed: " + e.getMessage());
                 }
 
                 @Override
@@ -92,7 +163,7 @@ public class GeminiApiService {
                         String responseBody = response.body() != null ? response.body().string() : "";
                         if (!response.isSuccessful()) {
                             String err = parseErrorMessage(responseBody, response.code());
-                            mainHandler.post(() -> callback.onError(err));
+                            callback.onError(err);
                             return;
                         }
 
@@ -102,23 +173,23 @@ public class GeminiApiService {
                             JSONObject candidate = candidates.getJSONObject(0);
                             JSONObject content = candidate.optJSONObject("content");
                             if (content != null) {
-                                JSONArray parts = content.optJSONArray("parts");
-                                if (parts != null && parts.length() > 0) {
-                                    String text = parts.getJSONObject(0).optString("text", "");
-                                    mainHandler.post(() -> callback.onSuccess(text));
+                                JSONArray resParts = content.optJSONArray("parts");
+                                if (resParts != null && resParts.length() > 0) {
+                                    String text = resParts.getJSONObject(0).optString("text", "");
+                                    callback.onSuccess(text);
                                     return;
                                 }
                             }
                         }
-                        mainHandler.post(() -> callback.onError("No response text received from Gemini."));
+                        callback.onError("Empty response");
                     } catch (Exception e) {
-                        mainHandler.post(() -> callback.onError("Parsing error: " + e.getMessage()));
+                        callback.onError("Parse error: " + e.getMessage());
                     }
                 }
             });
 
         } catch (Exception e) {
-            callback.onError("Request creation error: " + e.getMessage());
+            callback.onError("Build error: " + e.getMessage());
         }
     }
 
@@ -127,9 +198,9 @@ public class GeminiApiService {
             JSONObject json = new JSONObject(responseBody);
             JSONObject error = json.optJSONObject("error");
             if (error != null) {
-                return error.optString("message", "Error " + statusCode);
+                return error.optString("message", "HTTP " + statusCode);
             }
         } catch (Exception ignored) {}
-        return "Server returned status code: " + statusCode;
+        return "HTTP error " + statusCode;
     }
 }

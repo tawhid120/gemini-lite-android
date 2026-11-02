@@ -75,7 +75,9 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             GeminiViewHolder geminiHolder = (GeminiViewHolder) holder;
 
             if (message.isLoading()) {
-                geminiHolder.tvGeminiMessage.setText("✦ Gemini is thinking...");
+                geminiHolder.tvGeminiMessage.setText(message.getText() != null && !message.getText().isEmpty()
+                        ? message.getText()
+                        : "✦ Gemini is thinking...");
                 geminiHolder.actionLayout.setVisibility(View.GONE);
             } else {
                 markwon.setMarkdown(geminiHolder.tvGeminiMessage, message.getText());
